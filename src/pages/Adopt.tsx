@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
-
+import { submitAdoption } from "../api/adoptionService";
 function Adopt() {
   const location = useLocation();
   const pet = location.state?.pet;
@@ -24,8 +24,15 @@ function Adopt() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    await submitAdoption({
+      petId: pet?._id,
+      petName: pet?.name,
+      ...form,
+    });
 
     alert("🎉 Adoption Request Submitted Successfully!");
 
@@ -37,8 +44,11 @@ function Adopt() {
       occupation: "",
       reason: "",
     });
-  };
-
+  } catch (error) {
+    console.error(error);
+    alert("Submission failed.");
+  }
+};
   return (
     <>
       <Navbar />
