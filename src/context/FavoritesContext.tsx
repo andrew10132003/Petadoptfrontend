@@ -13,7 +13,7 @@ type FavoritesContextType = {
   favorites: Favorite[];
   addFavorite: (pet: Favorite) => void;
   removeFavorite: (id: string) => void;
-  isFavorite: (id: string) => boolean;
+  isFavorite: (id: string) => boolean; 
 };
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);

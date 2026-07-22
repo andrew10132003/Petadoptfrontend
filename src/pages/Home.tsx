@@ -1,13 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Searchbar from "../components/Searchbar";
 import Petcard from "../components/Petcard";
-import { PetsData } from "../data/Pets";
+import { getPets } from "../api/petService";
+import { petImages} from "../utlis/petsImages" ;
+type Pet = {
+  _id: string;
+  name: string;
+  breed: string;
+  age: string;
+  image: string;
+  description: string;
+};
 
 function PetsPage() {
+  const [pets, setPets] = useState<Pet[]>([]);
   const [search, setSearch] = useState("");
 
-  const filteredPets = PetsData.filter((pet) =>
+  useEffect(() => {
+    const fetchPets = async () => {
+      try {
+        const data = await getPets();
+        setPets(data);
+      } catch (error) {
+        console.error("Error fetching pets:", error);
+      }
+    };
+
+    fetchPets();
+  }, []);
+
+  const filteredPets = pets.filter((pet) =>
     pet.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -28,13 +51,13 @@ function PetsPage() {
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 px-5">
           {filteredPets.map((pet) => (
             <Petcard
-              key={pet.id}
-              id={pet.id}
-              name={pet.name}
-              breed={pet.breed}
-              age={pet.age}
-              image={pet.image}
-            />
+            key={pet._id}
+            id={pet._id}
+            name={pet.name}
+            breed={pet.breed}
+            age={pet.age}
+            image={petImages[pet.name]}
+             />
           ))}
         </div>
       </section>

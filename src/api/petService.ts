@@ -8,4 +8,4 @@ export const getPets = async () => {
 export const getPet = async (id: string) => {
   const response = await api.get(`/pets/${id}`);
   return response.data;
-};
+};          

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useFavorites } from "../context/FavoritesContext";
+import { petImages } from "../utlis/petsImages"; 
 
 type PetcardProps = {
   id: string;
@@ -34,10 +35,9 @@ function Petcard({ id, name, breed, age, image }: PetcardProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300">
-
       <div className="relative">
         <img
-          src={image}
+          src={petImages[name] || image}
           alt={name}
           className="w-full h-64 object-cover"
         />
@@ -63,7 +63,6 @@ function Petcard({ id, name, breed, age, image }: PetcardProps) {
           </button>
         </Link>
       </div>
-
     </div>
   );
 }

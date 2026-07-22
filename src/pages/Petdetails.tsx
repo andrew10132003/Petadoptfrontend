@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { getPet } from "../api/petService";
+import { petImages} from "../utlis/petsImages" ;
 
 type Pet = {
   _id: string;
@@ -39,9 +40,7 @@ function PetDetails() {
     return (
       <>
         <Navbar />
-        <h1 className="text-center text-3xl mt-20">
-          Loading...
-        </h1>
+        <h1 className="text-center text-3xl mt-20">Loading...</h1>
       </>
     );
   }
@@ -50,9 +49,7 @@ function PetDetails() {
     return (
       <>
         <Navbar />
-        <h1 className="text-center text-4xl mt-20">
-          Pet Not Found
-        </h1>
+        <h1 className="text-center text-4xl mt-20">Pet Not Found</h1>
       </>
     );
   }
@@ -66,14 +63,13 @@ function PetDetails() {
 
           {/* Pet Image */}
           <img
-            src={pet.image}
+            src={petImages[pet.name] || pet.image}
             alt={pet.name}
             className="rounded-xl w-full h-[500px] object-cover shadow-lg"
           />
 
           {/* Pet Details */}
           <div>
-
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               {pet.name}
             </h1>
@@ -83,11 +79,8 @@ function PetDetails() {
             </p>
 
             <div className="space-y-3">
-
               <p><strong>Age:</strong> {pet.age}</p>
-
               <p><strong>Breed:</strong> {pet.breed}</p>
-
             </div>
 
             <h2 className="text-2xl font-bold mt-8 mb-3">
@@ -99,7 +92,6 @@ function PetDetails() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mt-10">
-
               <Link
                 to="/adopt"
                 state={{ pet }}
@@ -118,9 +110,7 @@ function PetDetails() {
                   Back to Pets
                 </button>
               </Link>
-
             </div>
-
           </div>
 
         </div>
