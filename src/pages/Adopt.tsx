@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { submitAdoption } from "../api/adoptionService";
+
 function Adopt() {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const pet = location.state?.pet;
 
-  const [form, setForm] = useState({
-    name: "",
+  const [formData, setFormData] = useState({
     email: "",
     phone: "",
     address: "",
@@ -15,141 +16,221 @@ function Adopt() {
     reason: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!pet) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">
+            Pet Not Found
+          </h1>
+
+          <Link
+            to="/pets"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg"
+          >
+            Back to Pets
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement
+    >
   ) => {
-    setForm({
-      ...form,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
 
-  try {
-    await submitAdoption({
-      petId: pet?._id,
-      petName: pet?.name,
-      ...form,
-    });
+    setError("");
 
-    alert("🎉 Adoption Request Submitted Successfully!");
+    const token = localStorage.getItem("token");
 
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      occupation: "",
-      reason: "",
-    });
-  } catch (error) {
-    console.error(error);
-    alert("Submission failed.");
-  }
-};
+    if (!token) {
+      alert("Please login before submitting an adoption request.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await submitAdoption({
+        petId: pet._id || pet.id,
+        petName: pet.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        occupation: formData.occupation,
+        reason: formData.reason,
+      });
+
+      alert("Adoption Request Submitted Successfully ❤️");
+
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error("Adoption submission error:", error);
+
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to submit adoption request"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <>
-      <Navbar />
+    <div className="max-w-4xl mx-auto py-16 px-5">
+      <h1 className="text-4xl font-bold text-center mb-10">
+        Adopt {pet.name} ❤️
+      </h1>
 
-      <div className="min-h-screen bg-gray-100 py-12 px-4">
-        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
+      <div className="bg-white shadow-lg rounded-xl p-8">
 
-          <h1 className="text-4xl font-bold text-center mb-8">
-            🐾 Pet Adoption Form
-          </h1>
+        {/* Pet Image */}
+        <img
+          src={pet.image}
+          alt={pet.name}
+          className="w-full h-80 object-cover rounded-xl mb-6"
+        />
 
-          {pet && (
-            <div className="bg-blue-50 rounded-lg p-5 mb-8">
-              <h2 className="text-2xl font-bold text-blue-700">
-                Adopting: {pet.name}
-              </h2>
+        {/* Pet Information */}
+        <h2 className="text-3xl font-bold mb-3">
+          {pet.name}
+        </h2>
 
-              <p>
-                <strong>Breed:</strong> {pet.breed}
-              </p>
+        <p className="text-gray-600 mb-2">
+          Breed: {pet.breed}
+        </p>
 
-              <p>
-                <strong>Age:</strong> {pet.age}
-              </p>
-            </div>
-          )}
+        <p className="text-gray-600 mb-6">
+          Age: {pet.age}
+        </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Error */}
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
 
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3"
-              required
-            />
+        {/* Adoption Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Email */}
+          <div>
+            <label className="block font-semibold mb-2">
+              Email
+            </label>
 
             <input
               type="email"
               name="email"
-              placeholder="Email"
-              value={form.email}
+              value={formData.email}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3"
+              placeholder="Enter your email"
               required
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block font-semibold mb-2">
+              Phone
+            </label>
 
             <input
-              type="text"
+              type="tel"
               name="phone"
-              placeholder="Phone Number"
-              value={form.phone}
+              value={formData.phone}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3"
+              placeholder="Enter your phone number"
               required
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
+          </div>
 
-            <input
-              type="text"
+          {/* Address */}
+          <div>
+            <label className="block font-semibold mb-2">
+              Address
+            </label>
+
+            <textarea
               name="address"
-              placeholder="Address"
-              value={form.address}
+              value={formData.address}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3"
+              placeholder="Enter your address"
+              rows={3}
               required
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
+          </div>
+
+          {/* Occupation */}
+          <div>
+            <label className="block font-semibold mb-2">
+              Occupation
+            </label>
 
             <input
               type="text"
               name="occupation"
-              placeholder="Occupation"
-              value={form.occupation}
+              value={formData.occupation}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3"
+              placeholder="Enter your occupation"
               required
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
+          </div>
+
+          {/* Reason */}
+          <div>
+            <label className="block font-semibold mb-2">
+              Reason for Adoption
+            </label>
 
             <textarea
               name="reason"
+              value={formData.reason}
+              onChange={handleChange}
               placeholder="Why do you want to adopt this pet?"
               rows={5}
-              value={form.reason}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3"
               required
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
+          </div>
 
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg text-lg font-semibold"
-            >
-              Submit Adoption Request
-            </button>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white py-4 rounded-lg font-semibold"
+          >
+            {loading
+              ? "Submitting..."
+              : "Submit Adoption Request ❤️"}
+          </button>
 
-          </form>
+        </form>
 
-        </div>
       </div>
-    </>
+    </div>
   );
 }
 

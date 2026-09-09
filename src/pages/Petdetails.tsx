@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { getPet } from "../api/petService";
-import { petImages} from "../utlis/petsImages" ;
+import { petImages} from "../utils/petsImages" ;
 
 type Pet = {
   _id: string;
@@ -39,7 +38,6 @@ function PetDetails() {
   if (loading) {
     return (
       <>
-        <Navbar />
         <h1 className="text-center text-3xl mt-20">Loading...</h1>
       </>
     );
@@ -48,7 +46,6 @@ function PetDetails() {
   if (!pet) {
     return (
       <>
-        <Navbar />
         <h1 className="text-center text-4xl mt-20">Pet Not Found</h1>
       </>
     );
@@ -56,8 +53,7 @@ function PetDetails() {
 
   return (
     <>
-      <Navbar />
-
+      
       <div className="max-w-6xl mx-auto py-16 px-5">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 

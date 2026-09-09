@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
 import Searchbar from "../components/Searchbar";
 import Petcard from "../components/Petcard";
 import { getPets } from "../api/petService";
@@ -35,10 +34,9 @@ function PetsPage() {
 
   return (
     <>
-      <Navbar />
-
+      
       <section className="py-16 bg-gray-100 min-h-screen">
-        <h1 className="text-5xl font-bold text-center mb-10">
+        <h1 className="text-5xl font-bold text-center mb-10 ">
           All Pets
         </h1>
 

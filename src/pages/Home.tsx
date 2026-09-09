@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
 import Searchbar from "../components/Searchbar";
 import Petcard from "../components/Petcard";
 import { getPets } from "../api/petService";
-import { petImages} from "../utlis/petsImages" ;
+import { petImages} from "../utils/petsImages" ;
 type Pet = {
   _id: string;
   name: string;
@@ -36,8 +35,7 @@ function PetsPage() {
 
   return (
     <>
-      <Navbar />
-
+      
       <Searchbar
         search={search}
         setSearch={setSearch}

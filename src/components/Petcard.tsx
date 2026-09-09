@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useFavorites } from "../context/FavoritesContext";
-import { petImages } from "../utlis/petsImages"; 
+import { petImages } from "../utils/petsImages"; 
 
 type PetcardProps = {
   id: string;
