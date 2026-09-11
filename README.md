@@ -50,7 +50,6 @@ Email: `adopter@example.com`
 Password: `Adopter@123`  
 Role: `adopter`
 🧑‍🍼 Foster Login
-
 Email: `foster@example.com`  
 Password: `Foster@123`  
 Role: `foster`
