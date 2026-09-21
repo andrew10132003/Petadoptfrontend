@@ -2,22 +2,43 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 
+type PetDetails = {
+  _id: string;
+  name: string;
+  breed: string;
+  age: string;
+  image: string;
+};
+
 type Adoption = {
   _id: string;
-  petId: string;
+
+  petId: PetDetails;
+
   petName: string;
+
+  shelterId?: string;
+
   email: string;
   phone: string;
   address: string;
   occupation: string;
   reason: string;
-  status: "pending" | "approved" | "rejected" | "cancelled";
+
+  status:
+    | "pending"
+    | "approved"
+    | "rejected"
+    | "cancelled";
+
   createdAt: string;
 
   userId?: {
+    _id?: string;
     name: string;
     email: string;
     phone?: string;
+    address?: string;
   };
 };
 
@@ -70,6 +91,7 @@ function AdminDashboard() {
 
   // =====================================================
   // GET ALL ADOPTIONS
+  // ADMIN ONLY
   // =====================================================
 
   const getAllAdoptions = async () => {
@@ -95,46 +117,6 @@ function AdminDashboard() {
   };
 
   // =====================================================
-  // APPROVE ADOPTION
-  // =====================================================
-
-  const approveAdoption = async (id: string) => {
-    const token = getToken();
-
-    const response = await api.patch(
-      `/admin/adoptions/${id}/approve`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    return response.data;
-  };
-
-  // =====================================================
-  // REJECT ADOPTION
-  // =====================================================
-
-  const rejectAdoption = async (id: string) => {
-    const token = getToken();
-
-    const response = await api.patch(
-      `/admin/adoptions/${id}/reject`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    return response.data;
-  };
-
-  // =====================================================
   // ADD PET
   // =====================================================
 
@@ -155,7 +137,9 @@ function AdminDashboard() {
         },
       });
 
-      setPetMessage("✅ Pet added successfully!");
+      setPetMessage(
+        "✅ Pet added successfully!"
+      );
 
       // Clear form
       setPetForm({
@@ -168,9 +152,13 @@ function AdminDashboard() {
 
       // Refresh pet list
       const updatedPets = await getAllPets();
+
       setPets(updatedPets);
     } catch (error: any) {
-      console.error("Add Pet Error:", error);
+      console.error(
+        "Add Pet Error:",
+        error
+      );
 
       setPetMessage(
         error.response?.data?.message ||
@@ -185,7 +173,10 @@ function AdminDashboard() {
   // DELETE PET
   // =====================================================
 
-  const handleDeletePet = async (id: string, name: string) => {
+  const handleDeletePet = async (
+    id: string,
+    name: string
+  ) => {
     const confirmed = window.confirm(
       `Are you sure you want to delete ${name}?`
     );
@@ -217,7 +208,10 @@ function AdminDashboard() {
         `✅ ${name} deleted successfully.`
       );
     } catch (error: any) {
-      console.error("Delete Pet Error:", error);
+      console.error(
+        "Delete Pet Error:",
+        error
+      );
 
       setPetMessage(
         error.response?.data?.message ||
@@ -236,13 +230,19 @@ function AdminDashboard() {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
-    // No login
+    // ---------------------------------------------------
+    // NO LOGIN
+    // ---------------------------------------------------
+
     if (!token || !userData) {
       navigate("/login");
       return;
     }
 
-    // Check admin
+    // ---------------------------------------------------
+    // CHECK ADMIN
+    // ---------------------------------------------------
+
     try {
       const user = JSON.parse(userData);
 
@@ -251,7 +251,10 @@ function AdminDashboard() {
         return;
       }
     } catch (error) {
-      console.error("User data error:", error);
+      console.error(
+        "User data error:",
+        error
+      );
 
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -260,17 +263,22 @@ function AdminDashboard() {
       return;
     }
 
-    // Fetch dashboard data
+    // ---------------------------------------------------
+    // FETCH DASHBOARD DATA
+    // ---------------------------------------------------
+
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const [adoptionData, petData] =
-          await Promise.all([
-            getAllAdoptions(),
-            getAllPets(),
-          ]);
+        const [
+          adoptionData,
+          petData,
+        ] = await Promise.all([
+          getAllAdoptions(),
+          getAllPets(),
+        ]);
 
         setAdoptions(
           adoptionData.adoptions || []
@@ -284,16 +292,25 @@ function AdminDashboard() {
         );
 
         // Unauthorized
-        if (error.response?.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
+        if (
+          error.response?.status === 401
+        ) {
+          localStorage.removeItem(
+            "token"
+          );
+
+          localStorage.removeItem(
+            "user"
+          );
 
           navigate("/login");
           return;
         }
 
         // Not admin
-        if (error.response?.status === 403) {
+        if (
+          error.response?.status === 403
+        ) {
           navigate("/dashboard");
           return;
         }
@@ -309,94 +326,6 @@ function AdminDashboard() {
 
     fetchDashboardData();
   }, [navigate]);
-
-  // =====================================================
-  // APPROVE
-  // =====================================================
-
-  const handleApprove = async (id: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to approve this adoption request?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setActionLoading(id);
-
-      await approveAdoption(id);
-
-      setAdoptions((currentAdoptions) =>
-        currentAdoptions.map((adoption) =>
-          adoption._id === id
-            ? {
-                ...adoption,
-                status: "approved",
-              }
-            : adoption
-        )
-      );
-
-      alert(
-        "Adoption request approved successfully."
-      );
-    } catch (error: any) {
-      console.error("Approve Error:", error);
-
-      alert(
-        error.response?.data?.message ||
-          "Failed to approve adoption request."
-      );
-    } finally {
-      setActionLoading("");
-    }
-  };
-
-  // =====================================================
-  // REJECT
-  // =====================================================
-
-  const handleReject = async (id: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to reject this adoption request?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setActionLoading(id);
-
-      await rejectAdoption(id);
-
-      setAdoptions((currentAdoptions) =>
-        currentAdoptions.map((adoption) =>
-          adoption._id === id
-            ? {
-                ...adoption,
-                status: "rejected",
-              }
-            : adoption
-        )
-      );
-
-      alert(
-        "Adoption request rejected successfully."
-      );
-    } catch (error: any) {
-      console.error("Reject Error:", error);
-
-      alert(
-        error.response?.data?.message ||
-          "Failed to reject adoption request."
-      );
-    } finally {
-      setActionLoading("");
-    }
-  };
 
   // =====================================================
   // LOADING
@@ -418,12 +347,11 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
-
       <div className="max-w-7xl mx-auto">
 
-        {/* ========================================= */}
-        {/* HEADER */}
-        {/* ========================================= */}
+        {/* =====================================================
+            HEADER
+        ====================================================== */}
 
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
 
@@ -436,13 +364,16 @@ function AdminDashboard() {
               </h1>
 
               <p className="text-gray-600 mt-2">
-                Manage pets and adoption requests.
+                Manage pets and monitor adoption
+                requests.
               </p>
 
             </div>
 
             <button
-              onClick={() => navigate("/pets")}
+              onClick={() =>
+                navigate("/pets")
+              }
               className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold transition"
             >
               🐾 View Pets
@@ -452,9 +383,9 @@ function AdminDashboard() {
 
         </div>
 
-        {/* ========================================= */}
-        {/* ERROR */}
-        {/* ========================================= */}
+        {/* =====================================================
+            ERROR
+        ====================================================== */}
 
         {error && (
           <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg mb-6">
@@ -462,11 +393,32 @@ function AdminDashboard() {
           </div>
         )}
 
-        {/* ========================================= */}
-        {/* STATISTICS */}
-        {/* ========================================= */}
+        {/* =====================================================
+            ADMIN RESPONSIBILITY INFORMATION
+        ====================================================== */}
+
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-8">
+
+          <h2 className="text-lg font-bold text-blue-800">
+            🔐 Role Responsibilities
+          </h2>
+
+          <p className="text-blue-700 mt-2">
+            Admin monitors the overall platform
+            and manages pets. Adoption requests
+            are reviewed and approved or rejected
+            by the shelter responsible for the pet.
+          </p>
+
+        </div>
+
+        {/* =====================================================
+            STATISTICS
+        ====================================================== */}
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+
+          {/* PETS */}
 
           <div className="bg-white rounded-xl shadow p-5">
 
@@ -480,6 +432,8 @@ function AdminDashboard() {
 
           </div>
 
+          {/* REQUESTS */}
+
           <div className="bg-white rounded-xl shadow p-5">
 
             <p className="text-gray-500">
@@ -492,6 +446,8 @@ function AdminDashboard() {
 
           </div>
 
+          {/* PENDING */}
+
           <div className="bg-yellow-50 rounded-xl shadow p-5">
 
             <p className="text-yellow-700">
@@ -502,12 +458,15 @@ function AdminDashboard() {
               {
                 adoptions.filter(
                   (item) =>
-                    item.status === "pending"
+                    item.status ===
+                    "pending"
                 ).length
               }
             </h2>
 
           </div>
+
+          {/* APPROVED */}
 
           <div className="bg-green-50 rounded-xl shadow p-5">
 
@@ -519,12 +478,15 @@ function AdminDashboard() {
               {
                 adoptions.filter(
                   (item) =>
-                    item.status === "approved"
+                    item.status ===
+                    "approved"
                 ).length
               }
             </h2>
 
           </div>
+
+          {/* REJECTED */}
 
           <div className="bg-red-50 rounded-xl shadow p-5">
 
@@ -536,7 +498,8 @@ function AdminDashboard() {
               {
                 adoptions.filter(
                   (item) =>
-                    item.status === "rejected"
+                    item.status ===
+                    "rejected"
                 ).length
               }
             </h2>
@@ -545,9 +508,9 @@ function AdminDashboard() {
 
         </div>
 
-        {/* ========================================= */}
-        {/* ADD NEW PET */}
-        {/* ========================================= */}
+        {/* =====================================================
+            ADD NEW PET
+        ====================================================== */}
 
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
 
@@ -560,7 +523,7 @@ function AdminDashboard() {
             className="grid md:grid-cols-2 gap-5"
           >
 
-            {/* NAME */}
+            {/* PET NAME */}
 
             <div>
 
@@ -669,7 +632,8 @@ function AdminDashboard() {
                 onChange={(e) =>
                   setPetForm({
                     ...petForm,
-                    description: e.target.value,
+                    description:
+                      e.target.value,
                   })
                 }
                 placeholder="Describe the pet..."
@@ -707,9 +671,9 @@ function AdminDashboard() {
 
         </div>
 
-        {/* ========================================= */}
-        {/* PET MANAGEMENT */}
-        {/* ========================================= */}
+        {/* =====================================================
+            PET MANAGEMENT
+        ====================================================== */}
 
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
 
@@ -790,11 +754,13 @@ function AdminDashboard() {
                         )
                       }
                       disabled={
-                        actionLoading === pet._id
+                        actionLoading ===
+                        pet._id
                       }
                       className="w-full mt-5 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white px-4 py-2 rounded-lg font-semibold transition"
                     >
-                      {actionLoading === pet._id
+                      {actionLoading ===
+                      pet._id
                         ? "Deleting..."
                         : "🗑️ Delete Pet"}
                     </button>
@@ -811,15 +777,21 @@ function AdminDashboard() {
 
         </div>
 
-        {/* ========================================= */}
-        {/* ALL ADOPTION REQUESTS */}
-        {/* ========================================= */}
+        {/* =====================================================
+            ALL ADOPTION REQUESTS
+        ====================================================== */}
 
         <div className="bg-white rounded-xl shadow-md p-6">
 
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-2xl font-bold mb-2">
             📋 All Adoption Requests
           </h2>
+
+          <p className="text-gray-500 mb-6">
+            Admin can monitor all requests.
+            Shelters are responsible for
+            approving or rejecting them.
+          </p>
 
           {adoptions.length === 0 ? (
 
@@ -842,22 +814,41 @@ function AdminDashboard() {
                   className="border rounded-xl p-6 hover:shadow-md transition"
                 >
 
-                  {/* PET + STATUS */}
+                  {/* =================================================
+                      PET + STATUS
+                  ================================================== */}
 
                   <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
 
                     <div>
 
                       <h3 className="text-xl font-bold">
-                        🐾 {adoption.petName}
+                        🐾{" "}
+                        {adoption.petId?.name ||
+                          adoption.petName}
                       </h3>
 
                       <p className="text-gray-500 text-sm mt-1">
-                        Pet ID: {adoption.petId}
+                        Breed:{" "}
+                        {adoption.petId?.breed ||
+                          "N/A"}
                       </p>
 
                       <p className="text-gray-500 text-sm">
-                        Request ID: {adoption._id}
+                        Age:{" "}
+                        {adoption.petId?.age ||
+                          "N/A"}
+                      </p>
+
+                      <p className="text-gray-500 text-sm mt-1">
+                        Pet ID:{" "}
+                        {adoption.petId?._id ||
+                          "N/A"}
+                      </p>
+
+                      <p className="text-gray-500 text-sm">
+                        Request ID:{" "}
+                        {adoption._id}
                       </p>
 
                     </div>
@@ -883,9 +874,13 @@ function AdminDashboard() {
 
                   </div>
 
-                  {/* APPLICANT */}
+                  {/* =================================================
+                      APPLICANT
+                  ================================================== */}
 
                   <div className="grid md:grid-cols-2 gap-5 mt-6">
+
+                    {/* NAME */}
 
                     <div>
 
@@ -900,6 +895,8 @@ function AdminDashboard() {
 
                     </div>
 
+                    {/* EMAIL */}
+
                     <div>
 
                       <p className="text-sm text-gray-500">
@@ -911,6 +908,8 @@ function AdminDashboard() {
                       </p>
 
                     </div>
+
+                    {/* PHONE */}
 
                     <div>
 
@@ -924,6 +923,8 @@ function AdminDashboard() {
 
                     </div>
 
+                    {/* OCCUPATION */}
+
                     <div>
 
                       <p className="text-sm text-gray-500">
@@ -935,6 +936,8 @@ function AdminDashboard() {
                       </p>
 
                     </div>
+
+                    {/* SUBMITTED */}
 
                     <div>
 
@@ -952,7 +955,9 @@ function AdminDashboard() {
 
                   </div>
 
-                  {/* ADDRESS */}
+                  {/* =================================================
+                      ADDRESS
+                  ================================================== */}
 
                   <div className="mt-5">
 
@@ -966,7 +971,9 @@ function AdminDashboard() {
 
                   </div>
 
-                  {/* REASON */}
+                  {/* =================================================
+                      REASON
+                  ================================================== */}
 
                   <div className="mt-5">
 
@@ -980,52 +987,22 @@ function AdminDashboard() {
 
                   </div>
 
-                  {/* ACTIONS */}
+                  {/* =================================================
+                      SHELTER INFORMATION
+                  ================================================== */}
 
-                  {adoption.status ===
-                    "pending" && (
+                  <div className="mt-5 pt-5 border-t">
 
-                    <div className="flex gap-3 mt-6 pt-5 border-t">
+                    <p className="text-sm text-gray-500">
+                      Request Handling
+                    </p>
 
-                      <button
-                        onClick={() =>
-                          handleApprove(
-                            adoption._id
-                          )
-                        }
-                        disabled={
-                          actionLoading ===
-                          adoption._id
-                        }
-                        className="bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white px-5 py-2 rounded-lg font-semibold transition"
-                      >
-                        {actionLoading ===
-                        adoption._id
-                          ? "Processing..."
-                          : "✓ Approve"}
-                      </button>
+                    <p className="font-medium text-blue-700">
+                      🏠 Shelter reviews and
+                      decides this request.
+                    </p>
 
-                      <button
-                        onClick={() =>
-                          handleReject(
-                            adoption._id
-                          )
-                        }
-                        disabled={
-                          actionLoading ===
-                          adoption._id
-                        }
-                        className="bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white px-5 py-2 rounded-lg font-semibold transition"
-                      >
-                        {actionLoading ===
-                        adoption._id
-                          ? "Processing..."
-                          : "✕ Reject"}
-                      </button>
-
-                    </div>
-
-                  )}
+                  </div>
 
                 </div>
 
@@ -1038,7 +1015,6 @@ function AdminDashboard() {
         </div>
 
       </div>
-
     </div>
   );
 }
