@@ -54,6 +54,9 @@ Email: `foster@example.com`
 Password: `Foster@123`  
 Role: `foster`
  👑 Admin Login
+admin Email` aandrewcemon132003@gmail.com`
+password `Aandrew@13102003`
+role `admin`
 Use the existing Admin account created in the backend database.
 Role: `admin`
 > ⚠️ Demo credentials are provided for project evaluation and testing purposes.
