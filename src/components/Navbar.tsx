@@ -156,7 +156,7 @@ function Navbar() {
             </span>
 
             <span className="text-xl font-bold text-blue-600">
-              Pet Adoption
+              Pet Adoption🐶
             </span>
           </Link>
 
@@ -166,6 +166,8 @@ function Navbar() {
 
           <div className="hidden md:flex items-center gap-6">
 
+            {/* HOME */}
+
             <Link
               to="/"
               className="text-gray-700 hover:text-blue-600 font-medium"
@@ -173,11 +175,22 @@ function Navbar() {
               Home
             </Link>
 
+            {/* PETS */}
+
             <Link
               to="/pets"
               className="text-gray-700 hover:text-blue-600 font-medium"
             >
               Pets
+            </Link>
+
+            {/* FAVORITES */}
+
+            <Link
+              to="/favorites"
+              className="text-gray-700 hover:text-blue-600 font-medium"
+            >
+              ❤️ Favorites
             </Link>
 
             {user ? (
@@ -283,6 +296,16 @@ function Navbar() {
                 className="px-3 py-2 rounded-lg hover:bg-gray-100"
               >
                 🐾 Pets
+              </Link>
+
+              {/* FAVORITES */}
+
+              <Link
+                to="/favorites"
+                onClick={closeMenu}
+                className="px-3 py-2 rounded-lg hover:bg-gray-100"
+              >
+                ❤️ Favorites
               </Link>
 
               {user ? (

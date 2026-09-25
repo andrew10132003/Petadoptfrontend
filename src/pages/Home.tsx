@@ -41,10 +41,6 @@ function PetsPage() {
         setSearch={setSearch}
       />
 
-      <section className="py-16 bg-gray-100 min-h-screen">
-        <h1 className="text-5xl font-bold text-center mb-10">
-          All Pets
-        </h1>
 
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 px-5">
           {filteredPets.map((pet) => (
@@ -58,7 +54,7 @@ function PetsPage() {
              />
           ))}
         </div>
-      </section>
+  
     </>
   );
 }

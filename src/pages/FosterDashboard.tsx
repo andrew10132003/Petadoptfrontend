@@ -27,7 +27,7 @@ function FosterDashboard() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
+    <div className="min-h-screen py-10 px-4">
 
       <div className="max-w-5xl mx-auto">
 
@@ -79,7 +79,7 @@ function FosterDashboard() {
 
           {/* FOSTER PETS */}
 
-          <div className="bg-white rounded-2xl shadow-md p-6">
+          <div className="bg-white rounded-2xl  shadow-md p-6 mb-8">
 
             <div className="text-4xl mb-4">
               🐶
@@ -99,32 +99,6 @@ function FosterDashboard() {
               className="mt-5 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold transition"
             >
               View Pets
-            </button>
-
-          </div>
-
-          {/* FUTURE FOSTERING */}
-
-          <div className="bg-white rounded-2xl shadow-md p-6">
-
-            <div className="text-4xl mb-4">
-              ❤️
-            </div>
-
-            <h2 className="text-xl font-bold text-gray-800">
-              Foster Applications
-            </h2>
-
-            <p className="text-gray-500 mt-2">
-              Foster application and pet-care management
-              can be added here.
-            </p>
-
-            <button
-              disabled
-              className="mt-5 bg-gray-300 text-gray-600 px-5 py-2 rounded-lg font-semibold cursor-not-allowed"
-            >
-              Coming Soon
             </button>
 
           </div>

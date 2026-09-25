@@ -544,7 +544,7 @@ function Dashboard() {
             HEADER
         ================================================== */}
 
-        <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
+        <div className=" rounded-2xl shadow-md p-6 md:p-8 mb-8">
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
 
@@ -617,7 +617,7 @@ function Dashboard() {
 
           {/* TOTAL */}
 
-          <div className="bg-white rounded-2xl shadow-md p-6">
+          <div className=" rounded-2xl shadow-md p-6">
 
             <div className="flex items-center justify-between">
 
@@ -733,7 +733,7 @@ function Dashboard() {
 
         {adoptions.length === 0 ? (
 
-          <div className="bg-white rounded-2xl shadow-md p-10 text-center">
+          <div className="rounded-2xl shadow-md p-10 text-center">
 
             <div className="text-6xl mb-5">
               🐶
@@ -778,7 +778,7 @@ function Dashboard() {
 
                   <div
                     key={adoption._id}
-                    className="bg-white rounded-2xl shadow-md overflow-hidden"
+                    className="rounded-2xl shadow-md overflow-hidden"
                   >
 
                     <div className="p-6 md:p-8">

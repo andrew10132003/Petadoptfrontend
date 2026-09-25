@@ -333,7 +333,7 @@ function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center">
         <h2 className="text-xl font-semibold">
           Loading admin dashboard...
         </h2>
@@ -346,7 +346,7 @@ function AdminDashboard() {
   // =====================================================
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
+    <div className="min-h-screen py-10 px-4">
       <div className="max-w-7xl mx-auto">
 
         {/* =====================================================
@@ -781,7 +781,7 @@ function AdminDashboard() {
             ALL ADOPTION REQUESTS
         ====================================================== */}
 
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="bg-blue-50 rounded-xl shadow-md p-6">
 
           <h2 className="text-2xl font-bold mb-2">
             📋 All Adoption Requests

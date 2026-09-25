@@ -6,16 +6,22 @@ import Petdetails from "../pages/Petdetails";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Adopt from "../pages/Adopt";
-
+import Favorites from "../pages/Favorites";
 import Dashboard from "../pages/Dashboard";
 import AdminDashboard from "../pages/AdminDashboard";
 import ShelterDashboard from "../pages/ShelterDashboard";
 import FosterDashboard from "../pages/FosterDashboard";
 
+import ProtectedRoute from "../components/ProtectedRoute";
+
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public Routes */}
+
+      {/* =====================================================
+          PUBLIC ROUTES
+      ===================================================== */}
+
       <Route path="/" element={<Home />} />
 
       <Route path="/pets" element={<Pets />} />
@@ -26,26 +32,88 @@ function AppRoutes() {
 
       <Route path="/register" element={<Register />} />
 
-      {/* Adoption Route */}
-      <Route path="/adopt" element={<Adopt />} />
-
-      {/* Dashboard Routes */}
-      <Route path="/dashboard" element={<Dashboard />} />
+      {/* =====================================================
+          FAVORITES
+      ===================================================== */}
 
       <Route
-        path="/admin-dashboard"
-        element={<AdminDashboard />}
+        path="/favorites"
+        element={<Favorites />}
       />
 
-      <Route
-        path="/shelter-dashboard"
-        element={<ShelterDashboard />}
-      />
+      {/* =====================================================
+          ADOPTION PAGE
+      ===================================================== */}
 
       <Route
-        path="/foster-dashboard"
-        element={<FosterDashboard />}
-      />
+        path="/adopt"
+        element={
+          <ProtectedRoute allowedRoles={["adopter"]} />
+        }
+      >
+        <Route index element={<Adopt />} />
+      </Route>
+
+      {/* =====================================================
+          ADOPTER
+      ===================================================== */}
+
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["adopter"]} />
+        }
+      >
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+      </Route>
+
+      {/* =====================================================
+          ADMIN
+      ===================================================== */}
+
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["admin"]} />
+        }
+      >
+        <Route
+          path="/admin-dashboard"
+          element={<AdminDashboard />}
+        />
+      </Route>
+
+      {/* =====================================================
+          SHELTER
+      ===================================================== */}
+
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["shelter"]} />
+        }
+      >
+        <Route
+          path="/shelter-dashboard"
+          element={<ShelterDashboard />}
+        />
+      </Route>
+
+      {/* =====================================================
+          FOSTER
+      ===================================================== */}
+
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["foster"]} />
+        }
+      >
+        <Route
+          path="/foster-dashboard"
+          element={<FosterDashboard />}
+        />
+      </Route>
+
     </Routes>
   );
 }

@@ -360,7 +360,7 @@ function ShelterDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center ">
         <h2 className="text-xl font-semibold">
           Loading shelter dashboard...
         </h2>
@@ -395,7 +395,7 @@ function ShelterDashboard() {
   // =====================================================
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
+    <div className="min-h-screen  py-10 px-4">
 
       <div className="max-w-7xl mx-auto">
 
