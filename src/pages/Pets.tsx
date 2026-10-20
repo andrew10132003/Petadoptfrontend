@@ -1,13 +1,16 @@
+
 import { useEffect, useState } from "react";
 import Searchbar from "../components/Searchbar";
 import Petcard from "../components/Petcard";
 import { getPets } from "../api/petService";
+
 type Pet = {
   _id: string;
   name: string;
   breed: string;
   age: string;
   image: string;
+  description?: string;
 };
 
 function PetsPage() {
@@ -18,8 +21,7 @@ function PetsPage() {
     const fetchPets = async () => {
       try {
         const data = await getPets();
-         console.log(data);
-        setPets(data);
+        setPets(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching pets:", error);
       }
@@ -29,30 +31,27 @@ function PetsPage() {
   }, []);
 
   const filteredPets = pets.filter((pet) =>
-    pet.name.toLowerCase().includes(search.toLowerCase())
+    (pet.name || "")
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
   return (
     <>
-      
+      <Searchbar search={search} setSearch={setSearch} />
 
-        <Searchbar
-          search={search}
-          setSearch={setSearch}
-        />
-
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-5">
-          {filteredPets.map((pet) => (
-            <Petcard
-              key={pet._id}
-              id={pet._id}
-              name={pet.name}
-              breed={pet.breed}
-              age={pet.age}
-              image={pet.image}
-            />
-          ))}
-        </div>
+      <div className="mx-auto grid max-w-6xl gap-8 px-5 md:grid-cols-3">
+        {filteredPets.map((pet) => (
+          <Petcard
+            key={pet._id}
+            id={pet._id}
+            name={pet.name}
+            breed={pet.breed}
+            age={pet.age}
+            image={pet.image}
+          />
+        ))}
+      </div>
     </>
   );
 }
