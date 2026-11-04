@@ -1,3 +1,4 @@
+
 import axios from "axios";
 
 const API_URL =
@@ -9,8 +10,7 @@ const API_URL =
 // =====================================================
 
 const getAuthHeaders = () => {
-  const token =
-    localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   return {
     headers: {
@@ -20,7 +20,7 @@ const getAuthHeaders = () => {
 };
 
 // =====================================================
-// CREATE ADOPTION
+// CREATE ADOPTION - ADOPTER
 // =====================================================
 
 export const createAdoption = async (
@@ -34,7 +34,6 @@ export const createAdoption = async (
     reason: string;
   }
 ) => {
-
   const response = await axios.post(
     `${API_URL}/adoptions`,
     adoptionData,
@@ -45,96 +44,152 @@ export const createAdoption = async (
 };
 
 // =====================================================
-// GET MY ADOPTIONS
+// GET MY ADOPTIONS - ADOPTER
 // =====================================================
 
-export const getMyAdoptions =
-  async () => {
+export const getMyAdoptions = async () => {
+  const response = await axios.get(
+    `${API_URL}/adoptions/my`,
+    getAuthHeaders()
+  );
 
-    const response =
-      await axios.get(
-        `${API_URL}/adoptions/my`,
-        getAuthHeaders()
-      );
-
-    return response.data;
-  };
+  return response.data;
+};
 
 // =====================================================
-// CANCEL ADOPTION
+// CANCEL ADOPTION - ADOPTER
 // =====================================================
 
-export const cancelAdoption =
-  async (
-    adoptionId: string
-  ) => {
+export const cancelAdoption = async (
+  adoptionId: string
+) => {
+  if (!adoptionId) {
+    throw new Error("Adoption ID is missing.");
+  }
 
-    if (!adoptionId) {
-      throw new Error(
-        "Adoption ID is missing."
-      );
-    }
+  const response = await axios.patch(
+    `${API_URL}/adoptions/${adoptionId}/cancel`,
+    {},
+    getAuthHeaders()
+  );
 
-    const response =
-      await axios.patch(
-        `${API_URL}/adoptions/${adoptionId}/cancel`,
-        {},
-        getAuthHeaders()
-      );
-
-    return response.data;
-  };
+  return response.data;
+};
 
 // =====================================================
-// SHELTER REQUESTS
+// GET SHELTER ADOPTIONS - SHELTER
 // =====================================================
 
-export const getShelterAdoptions =
-  async () => {
+export const getShelterAdoptions = async () => {
+  const response = await axios.get(
+    `${API_URL}/adoptions/shelter`,
+    getAuthHeaders()
+  );
 
-    const response =
-      await axios.get(
-        `${API_URL}/adoptions/shelter`,
-        getAuthHeaders()
-      );
-
-    return response.data;
-  };
+  return response.data;
+};
 
 // =====================================================
-// APPROVE
+// APPROVE ADOPTION - SHELTER
 // =====================================================
 
-export const approveAdoption =
-  async (
-    adoptionId: string
-  ) => {
+export const approveAdoption = async (
+  adoptionId: string
+) => {
+  const response = await axios.patch(
+    `${API_URL}/adoptions/shelter/${adoptionId}/approve`,
+    {},
+    getAuthHeaders()
+  );
 
-    const response =
-      await axios.patch(
-        `${API_URL}/adoptions/shelter/${adoptionId}/approve`,
-        {},
-        getAuthHeaders()
-      );
-
-    return response.data;
-  };
+  return response.data;
+};
 
 // =====================================================
-// REJECT
+// REJECT ADOPTION - SHELTER
 // =====================================================
 
-export const rejectAdoption =
-  async (
-    adoptionId: string
-  ) => {
+export const rejectAdoption = async (
+  adoptionId: string
+) => {
+  const response = await axios.patch(
+    `${API_URL}/adoptions/shelter/${adoptionId}/reject`,
+    {},
+    getAuthHeaders()
+  );
 
-    const response =
-      await axios.patch(
-        `${API_URL}/adoptions/shelter/${adoptionId}/reject`,
-        {},
-        getAuthHeaders()
-      );
+  return response.data;
+};
 
-    return response.data;
-  };
+// =====================================================
+// REQUEST ADDITIONAL INFORMATION - SHELTER
+// =====================================================
+
+export const requestAdditionalInformation = async (
+  adoptionId: string,
+  message: string
+) => {
+  const response = await axios.post(
+    `${API_URL}/adoptions/${adoptionId}/information-requests`,
+    { message },
+    getAuthHeaders()
+  );
+
+  return response.data;
+};
+
+// =====================================================
+// RESPOND TO INFORMATION REQUEST - ADOPTER
+// =====================================================
+
+export const respondToInformationRequest = async (
+  adoptionId: string,
+  requestId: string,
+  responseText: string
+) => {
+  const response = await axios.post(
+    `${API_URL}/adoptions/${adoptionId}/information-requests/${requestId}/respond`,
+    { response: responseText },
+    getAuthHeaders()
+  );
+
+  return response.data;
+};
+
+// =====================================================
+// SCHEDULE MEET-AND-GREET - SHELTER
+// =====================================================
+
+export const scheduleMeetAndGreet = async (
+  adoptionId: string,
+  meeting: {
+    scheduledAt: string;
+    location: string;
+    notes?: string;
+  }
+) => {
+  const response = await axios.post(
+    `${API_URL}/adoptions/${adoptionId}/meet-and-greet`,
+    meeting,
+    getAuthHeaders()
+  );
+
+  return response.data;
+};
+
+// =====================================================
+// RESPOND TO MEET-AND-GREET - ADOPTER
+// =====================================================
+
+export const respondToMeetAndGreet = async (
+  adoptionId: string,
+  decision: "confirmed" | "cancelled"
+) => {
+  const response = await axios.patch(
+    `${API_URL}/adoptions/${adoptionId}/meet-and-greet/respond`,
+    { decision },
+    getAuthHeaders()
+  );
+
+  return response.data;
+};

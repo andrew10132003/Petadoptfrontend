@@ -12,6 +12,7 @@ import axios from "axios";
 import {
   getMyAdoptions,
   cancelAdoption,
+  respondToInformationRequest,
 } from "../api/adoptionService";
 
 // =====================================================
@@ -25,6 +26,14 @@ type Pet = {
   age: string;
   image: string;
   description?: string;
+};
+
+type InformationRequest = {
+  _id: string;
+  message: string;
+  response?: string;
+  requestedAt?: string;
+  respondedAt?: string | null;
 };
 
 type Adoption = {
@@ -66,6 +75,7 @@ type Adoption = {
 
   createdAt?: string;
   updatedAt?: string;
+  informationRequests?: InformationRequest[];
 };
 type User = {
   id?: string;
@@ -100,6 +110,12 @@ function Dashboard() {
 
   const [error, setError] =
     useState("");
+
+  const [informationResponses, setInformationResponses] =
+    useState<Record<string, string>>({});
+
+  const [responseLoading, setResponseLoading] =
+    useState<string | null>(null);
 
   // ===================================================
   // GET USER
@@ -426,6 +442,53 @@ function Dashboard() {
 
     } finally {
       setCancelLoading(null);
+    }
+  };
+
+  // ===================================================
+  // RESPOND TO SHELTER INFORMATION REQUEST
+  // ===================================================
+
+  const handleInformationResponse = async (
+    adoptionId: string,
+    requestId: string
+  ) => {
+    const responseText = informationResponses[requestId]?.trim();
+
+    if (!responseText) {
+      setError("Please enter your response.");
+      return;
+    }
+
+    try {
+      setResponseLoading(requestId);
+      setError("");
+
+      await respondToInformationRequest(
+        adoptionId,
+        requestId,
+        responseText
+      );
+
+      setInformationResponses((previous) => ({
+        ...previous,
+        [requestId]: "",
+      }));
+
+      await fetchAdoptions();
+    } catch (err: unknown) {
+      console.error("Information response failed:", err);
+
+      if (axios.isAxiosError(err)) {
+        setError(
+          err.response?.data?.message ||
+            "Unable to submit your response."
+        );
+      } else {
+        setError("Unable to submit your response.");
+      }
+    } finally {
+      setResponseLoading(null);
     }
   };
 
@@ -1057,6 +1120,105 @@ function Dashboard() {
                         </div>
 
                       </div>
+
+                      {/* =====================================
+                          SHELTER INFORMATION REQUESTS
+                      ====================================== */}
+
+                      {adoption.informationRequests &&
+                        adoption.informationRequests.length > 0 && (
+                          <div className="mt-6 border-t pt-6">
+                            <h4 className="mb-4 text-lg font-bold text-gray-800">
+                              Messages from Shelter
+                            </h4>
+
+                            <div className="space-y-4">
+                              {adoption.informationRequests.map((request) => (
+                                <div
+                                  key={request._id}
+                                  className="rounded-xl border border-blue-200 bg-blue-50 p-4"
+                                >
+                                  <p className="text-sm font-semibold text-gray-800">
+                                    Information requested
+                                  </p>
+
+                                  <p className="mt-2 whitespace-pre-wrap text-gray-700">
+                                    {request.message}
+                                  </p>
+
+                                  {request.requestedAt && (
+                                    <p className="mt-2 text-xs text-gray-500">
+                                      Requested: {new Date(request.requestedAt).toLocaleString("en-IN")}
+                                    </p>
+                                  )}
+
+                                  {request.response?.trim() ? (
+                                    <div className="mt-4 rounded-lg border border-green-200 bg-white p-3">
+                                      <p className="text-sm font-semibold text-green-700">
+                                        Your response
+                                      </p>
+                                      <p className="mt-1 whitespace-pre-wrap text-gray-700">
+                                        {request.response}
+                                      </p>
+                                      {request.respondedAt && (
+                                        <p className="mt-2 text-xs text-gray-500">
+                                          Replied: {new Date(request.respondedAt).toLocaleString("en-IN")}
+                                        </p>
+                                      )}
+                                    </div>
+                                  ) : adoption.status === "pending" ? (
+                                    <div className="mt-4">
+                                      <label
+                                        htmlFor={`response-${request._id}`}
+                                        className="mb-2 block text-sm font-semibold text-gray-700"
+                                      >
+                                        Your reply
+                                      </label>
+
+                                      <textarea
+                                        id={`response-${request._id}`}
+                                        value={informationResponses[request._id] || ""}
+                                        onChange={(event) =>
+                                          setInformationResponses((previous) => ({
+                                            ...previous,
+                                            [request._id]: event.target.value,
+                                          }))
+                                        }
+                                        rows={3}
+                                        maxLength={2000}
+                                        placeholder="Enter the information requested by the shelter..."
+                                        className="w-full rounded-lg border border-gray-300 bg-white p-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                                      />
+
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleInformationResponse(
+                                            adoption._id,
+                                            request._id
+                                          )
+                                        }
+                                        disabled={
+                                          responseLoading === request._id ||
+                                          !informationResponses[request._id]?.trim()
+                                        }
+                                        className="mt-3 rounded-lg bg-blue-600 px-5 py-2 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                      >
+                                        {responseLoading === request._id
+                                          ? "Sending..."
+                                          : "Send Reply"}
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <p className="mt-3 text-sm text-gray-500">
+                                      No response submitted.
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                       {/* =====================================
                           ACTIONS
