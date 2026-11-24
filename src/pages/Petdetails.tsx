@@ -18,6 +18,14 @@ type Pet = {
   description: string;
 };
 
+function isSignedInAdopter(): boolean {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "{}").role === "adopter";
+  } catch {
+    return false;
+  }
+}
+
 function PetDetails() {
   const { id } = useParams();
 
@@ -206,7 +214,7 @@ function PetDetails() {
           </div>
 
           {/* Signed-in adopters can review this pet */}
-          {localStorage.getItem("token") && JSON.parse(localStorage.getItem("user") || "{}").role === "adopter" && (
+          {localStorage.getItem("token") && isSignedInAdopter() && (
             <form
               className="mb-8 rounded-xl border bg-white p-5"
               onSubmit={async (event) => {
