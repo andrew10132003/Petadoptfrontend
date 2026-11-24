@@ -62,6 +62,8 @@ function Register() {
           <input
             type="text"
             name="name"
+            minLength={2}
+            maxLength={80}
             placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
@@ -72,6 +74,7 @@ function Register() {
           <input
             type="email"
             name="email"
+            maxLength={254}
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
@@ -82,6 +85,8 @@ function Register() {
           <input
             type="password"
             name="password"
+            minLength={8}
+            maxLength={128}
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
@@ -90,8 +95,11 @@ function Register() {
           />
 
           <input
-            type="text"
+            type="tel"
             name="phone"
+            minLength={8}
+            maxLength={20}
+            pattern="[+0-9()\\s-]{8,20}"
             placeholder="Phone Number"
             value={formData.phone}
             onChange={handleChange}
@@ -102,6 +110,8 @@ function Register() {
           <input
             type="text"
             name="address"
+            minLength={5}
+            maxLength={300}
             placeholder="Address"
             value={formData.address}
             onChange={handleChange}
