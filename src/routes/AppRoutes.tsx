@@ -11,6 +11,7 @@ import Dashboard from "../pages/Dashboard";
 import AdminDashboard from "../pages/AdminDashboard";
 import ShelterDashboard from "../pages/ShelterDashboard";
 import FosterDashboard from "../pages/FosterDashboard";
+import Profile from "../pages/Profile";
 
 import ProtectedRoute from "../components/ProtectedRoute";
 
@@ -31,6 +32,10 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
+
+      <Route path="/profile" element={<ProtectedRoute />}>
+        <Route index element={<Profile />} />
+      </Route>
 
       {/* =====================================================
           FAVORITES
