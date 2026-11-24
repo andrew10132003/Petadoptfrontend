@@ -1,23 +1,12 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:5000/api/fosters";
+import api from "../utils/api";
 
 const getAuthConfig = () => {
   const token = localStorage.getItem("token");
-
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  return { headers: { Authorization: `Bearer ${token}` } };
 };
 
 export const getMyFosterApplications = async () => {
-  const response = await axios.get(
-    `${API_URL}/my-applications`,
-    getAuthConfig()
-  );
-
+  const response = await api.get("/fosters/my-applications", getAuthConfig());
   return response.data;
 };
 
@@ -30,11 +19,19 @@ export const applyToFoster = async (applicationData: {
   availability: string;
   reason: string;
 }) => {
-  const response = await axios.post(
-    `${API_URL}/apply`,
-    applicationData,
+  const response = await api.post("/fosters/apply", applicationData, getAuthConfig());
+  return response.data;
+};
+
+export const respondToFosterInformation = async (
+  applicationId: string,
+  requestId: string,
+  responseText: string
+) => {
+  const response = await api.post(
+    `/fosters/my-applications/${applicationId}/information-requests/${requestId}/respond`,
+    { response: responseText },
     getAuthConfig()
   );
-
   return response.data;
 };

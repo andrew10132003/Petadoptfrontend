@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../utils/api";
 import {
   applyToFoster,
   getMyFosterApplications,
@@ -101,7 +102,7 @@ function FosterDashboard() {
       const token = localStorage.getItem("token");
 
       const [petResponse, applicationData] = await Promise.all([
-        axios.get("http://localhost:5000/api/pets", {
+        api.get("/pets", {
           headers: { Authorization: `Bearer ${token}` },
         }),
         getMyFosterApplications(),

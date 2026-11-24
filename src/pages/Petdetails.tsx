@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { getPet } from "../api/petService";
 import {
   getPetReviews,
+  createReview,
   type Review,
   type ReviewsResponse,
 } from "../api/reviewService";
@@ -16,6 +17,14 @@ type Pet = {
   image: string;
   description: string;
 };
+
+function isSignedInAdopter(): boolean {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "{}").role === "adopter";
+  } catch {
+    return false;
+  }
+}
 
 function PetDetails() {
   const { id } = useParams();
@@ -33,6 +42,10 @@ function PetDetails() {
     undefined
   );
   const [reviewError, setReviewError] = useState("");
+  const [newRating, setNewRating] = useState(5);
+  const [newComment, setNewComment] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState("");
 
   // Fetch pet details
   useEffect(() => {
@@ -199,6 +212,52 @@ function PetDetails() {
               <option value="1">⭐ 1 star</option>
             </select>
           </div>
+
+          {/* Signed-in adopters can review this pet */}
+          {localStorage.getItem("token") && isSignedInAdopter() && (
+            <form
+              className="mb-8 rounded-xl border bg-white p-5"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                setReviewError("");
+                setReviewSuccess("");
+                if (newComment.trim().length < 3 || newComment.trim().length > 1000) {
+                  setReviewError("Review must contain 3 to 1000 characters.");
+                  return;
+                }
+                if (!id) return;
+                setReviewSubmitting(true);
+                try {
+                  await createReview({ petId: id }, newRating, newComment);
+                  setNewComment("");
+                  setNewRating(5);
+                  const refreshed = await getPetReviews(id, ratingFilter);
+                  setReviewData(refreshed);
+                  setReviewSuccess("Thank you! Your review has been submitted.");
+                } catch (error: any) {
+                  setReviewError(error.response?.data?.message || "Unable to submit review.");
+                } finally {
+                  setReviewSubmitting(false);
+                }
+              }}
+            >
+              <h3 className="mb-3 text-lg font-semibold">Write a review</h3>
+              <label className="mb-3 block text-sm font-medium">
+                Your rating
+                <select value={newRating} onChange={(event) => setNewRating(Number(event.target.value))} className="mt-1 block rounded-lg border p-2">
+                  <option value={5}>5 stars</option><option value={4}>4 stars</option><option value={3}>3 stars</option><option value={2}>2 stars</option><option value={1}>1 star</option>
+                </select>
+              </label>
+              <label className="block text-sm font-medium">
+                Your experience
+                <textarea required minLength={3} maxLength={1000} value={newComment} onChange={(event) => setNewComment(event.target.value)} rows={3} className="mt-1 w-full rounded-lg border p-3" placeholder="Share your experience..." />
+              </label>
+              {reviewSuccess && <p role="status" className="mt-2 text-green-700">{reviewSuccess}</p>}
+              <button disabled={reviewSubmitting} className="mt-3 rounded-lg bg-blue-600 px-5 py-2 font-semibold text-white disabled:opacity-60">
+                {reviewSubmitting ? "Submitting..." : "Submit review"}
+              </button>
+            </form>
+          )}
 
           {/* Reviews List */}
           {reviewLoading ? (
